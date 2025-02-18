@@ -138,11 +138,11 @@ function Login() {
     <div>
       <div className="flex min-h-full flex-1 flex-col pt-24 px-6 py-12 lg:px-8 h-screen">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <img
+          {/* <img
             alt="Your Company"
-            src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=600"
+            src=""
             className="mx-auto h-10 w-auto"
-          />
+          /> */}
           <h2 className="mt-10 text-center text-2xl font-bold tracking-tight text-white">
             Sign in or create account
           </h2>

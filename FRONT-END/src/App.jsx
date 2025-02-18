@@ -12,11 +12,13 @@ import PageNotFound from "./components/PageNotFound";
 import "./App.css";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Nav from "./components/Nav";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   return (
     <div className="bg-gradient-to-r from-gray-900 to-green-900">
       {/* <Nav /> */}
+      <Toaster/>
       <Routes>
 
             <Route path="/" element={<Nav />}>

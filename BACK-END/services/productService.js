@@ -75,18 +75,17 @@ async function retrieveData(data) {
     }
 }
 
-async function update(data) {
+async function update(data,id) {
     try {
         if(data){
-            
+            console.log("data:",data);
             
             let result = await Product.findOneAndUpdate(
-                { _id: data._id }, 
+                { _id: id }, 
                 { $set: data },  
                 { new: true}  
             );
             if(result){
-               
                 return result
 
             }else{

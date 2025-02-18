@@ -9,7 +9,6 @@ async function upload(id) {
         product: item.productId, 
         quandity: item.quandity, 
       }));
-      console.log("Data updated successfully");
     }
     if(response.length > 0){
         return response;
@@ -32,7 +31,6 @@ async function create(dataId, id ,qty) {
       console.log("qty:",qty);
       
       let response = await Cart.findOne({ userId, productId });
-      console.log("response:", response);
       if (response) {
         if(!qty) qty = 1
         let result = await Cart.updateOne(
@@ -67,24 +65,19 @@ async function removeData(id, proId) {
     } catch (error) {
       console.error("error found in remove data...");
     }
-  } else {
-    console.log("id not found...");
-  }
+  } 
 }
 
 async function removeQty(id, proId) {
-  console.log("proId,id:", proId, id);
   
   if (id && proId) {
     try {
       let response = await Cart.findOne({ userId: id, productId: proId });
       if(response){
-        console.log("response:",response);
         let result = await Cart.updateOne(
           { userId : id, productId : proId },
           { $set: { quandity: response.quandity - 1 } }
         );
-        console.log("result:",result);
        return result;
        
       } else {

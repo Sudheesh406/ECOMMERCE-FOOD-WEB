@@ -3,6 +3,7 @@ import OurMostPopularDeals from "./OurMostPopularDeals"
 import {useEffect, useState} from 'react'
 import axios from '../axios'
 
+
 function AdminPanel() {
   const [dataFromChild, setDataFromChild] = useState('');
   const [users, setUsers] = useState([])
@@ -43,8 +44,8 @@ useEffect(()=>{
         <h1 className="text-red-400 text-5xl pl-8 leading-tight">{dataFromChild}</h1>
         </div>
         <div className="flex h-24 pl-2 items-center">
-        <h1 className="text-5xl pl-8 leading-tight text-white">Today Sales: </h1>
-        <h1 className="text-red-400 text-5xl pl-8 leading-tight"> </h1>
+        <h1 className="text-5xl pl-8 leading-tight text-white">Today Sales : </h1>
+        <h1 className="text-red-400 text-5xl pl-8 leading-tight">0</h1>
         </div>
 
         </div>

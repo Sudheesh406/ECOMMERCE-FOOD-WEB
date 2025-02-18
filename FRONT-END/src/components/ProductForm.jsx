@@ -20,16 +20,26 @@ export function AddProductDialog({ open, handleClose ,sendDataToParent}) {
   function handleChange(e) {
     const { name, value, type, files } = e.target;
 
+    if (name === "image") imageRef.current.textContent = "";
     if (name === "name") nameRef.current.textContent = "";
     if (name === "offer") offerRef.current.textContent = "";
     if (name === "price") priceRef.current.textContent = "";
     if (name === "availability") availabilityRef.current.textContent = "";
   
     if (type === "file") {
-      setImage(files[0]);
+      const allowedTypes = ["image/png", "image/jpeg", "image/jpg","image/avif"];
+      
+      if (files[0] && allowedTypes.includes(files[0].type)) {
+        setImage(files[0]);
+        console.log("image:",files[0]);
+      } else {
+        imageRef.current.textContent = "Only PNG, JPG, AVIF and JPEG files are allowed.";
+        setImage(null);
+      }
+      
       return;
     }
-
+    
 
     setValue((prev) => ({
       ...prev,
@@ -43,6 +53,7 @@ export function AddProductDialog({ open, handleClose ,sendDataToParent}) {
     }));
   }
 
+  const imageRef = useRef(null)
   const nameRef = useRef(null)
   const priceRef = useRef(null)
   const availabilityRef = useRef(null)
@@ -53,7 +64,16 @@ export function AddProductDialog({ open, handleClose ,sendDataToParent}) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     let valid = true;
-  
+
+    if(!image){ 
+      imageRef.current.textContent = "Image is required";
+      valid = false;
+    } else {
+      console.log("image:",image);
+      
+      imageRef.current.textContent = "";
+    }
+
     if (value.name.trim() === "") {
       nameRef.current.textContent = "name is required";
       valid = false;
@@ -85,7 +105,6 @@ export function AddProductDialog({ open, handleClose ,sendDataToParent}) {
     if (valid) {
       handleClose();
       console.log('value:',value);
-      
       const formData = new FormData();
       formData.append("name", value.name);
       formData.append("description", value.description);
@@ -139,19 +158,32 @@ export function AddProductDialog({ open, handleClose ,sendDataToParent}) {
           </button>
         </div>
         <form className="space-y-4 mt-4 " onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="image" className="block text-gray-700 font-medium">
-              Upload Image
-            </label>
+          <div className="flex flex-col items-center">
+          {image && (
+              <img
+                src={
+                  typeof image === "string" ? image : URL.createObjectURL(image)
+                }
+                alt="Preview"
+                className="mt-2 w-20 h-20 object-cover rounded"
+              />
+            )}
             <input
               id="image"
               name="image"
               type="file"
               accept="image/*"
               onChange={handleChange}
-              className="w-full p-3 border border-gray-400 bg-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="hidden" // Hide the default input UI
             />
-            <p></p>
+            {/* Custom Upload Button */}
+            <label
+              htmlFor="image"
+              className="mt-2 inline-block bg-blue-500 text-white py-2 px-4 rounded cursor-pointer hover:bg-blue-600"
+            >
+              Choose Image
+            </label>
+            <p ref={imageRef} className="text-red-500 p-0 m-0"></p>
           </div>
           <div>
             <label htmlFor="Name" className="block text-gray-700 font-medium">

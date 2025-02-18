@@ -4,26 +4,23 @@ async function uploadCart(req,res) {
     let id = req.User.id
     console.log("id found:",id);
     if(id){
-
         try {
             let response = await upload(id)
             if(response){
-                console.log("response:",response);
+               
                 let result = response.map(item => ({
                     product: {
                       ...item.product.toObject(), 
                       quantity: item.quandity 
                     }
                   }));
-                  
-                  console.log("Updated Result:", result);
             
                 res.status(200).json({message:"success",result})
             }else{
                 res.status(401).json({message:"their is no data found"})
             }
         } catch (error) {
-            console.error("error found in uploadWish",error);
+            console.error("error found in cart",error);
             res.status(400).json({message:"error in upload data"})
         }
     }else{

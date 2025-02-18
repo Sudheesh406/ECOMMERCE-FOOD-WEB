@@ -2,7 +2,7 @@ const User = require("../models/userSchema");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require('dotenv').config();
-const {findUser,createNewAccount,findWithId,findAllUser} = require("../services/loginService");
+const {findUser,createNewAccount,findWithId,findAllUser,createAddress,getAddress} = require("../services/loginService");
 
 async function connectAccount(req, res) {
   const { email, password, username } = req.body;
@@ -107,4 +107,42 @@ const authControll = async (req,res)=>{
   }
 
 
-module.exports = {connectAccount,authControll,logout,allUsers}
+  async function userAddress(req,res) {
+    let data = req.body
+    if(data){
+      console.log("data:",data);
+      try {
+        let result = await createAddress(data)
+        if(result){
+          console.log("result:",result);
+       return res.status(200).json({message:'successfully address added',result})
+        }else{
+          return res.status(400).json({message:'error found in adding address'})
+      }
+      } catch (error) {
+        console.error("error found in userAddress adding");
+        res.json(401).status({message:'error found in adding address',error})
+      }
+    }
+  }
+
+const getUserAddress = async(req,res)=>{
+  if(req.body){
+    console.log("req.body:",req.body);
+    try {
+      let result = await getAddress(req.body)
+      if(result){
+        return res.status(200).json({message:"successfully find the address",result})
+      }else{
+        return res.status(400).json({message:"error found in getUserAddress"})
+      }
+    } catch (error) {
+      console.error("error found in getUserAddress",error);
+      return res.status(400).json({message:"error found in getUserAddress",error})
+    }
+
+  }
+}
+
+
+module.exports = {connectAccount,authControll,logout,allUsers,userAddress,getUserAddress}

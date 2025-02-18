@@ -4,7 +4,7 @@ require('dotenv').config();
 const cookieParser = require('cookie-parser');
 const loginRouter = require('./routers/loginRoute')
 const productRouter = require('./routers/productRoute')
-const wishRoute = require('./routers/wishRoute')
+const order = require('./routers/orderRoute')
 const cartRoute = require('./routers/cartRoute')
 const databaseCn = require('./database/db');
 const cors = require('cors')
@@ -15,11 +15,10 @@ app.use(cors({
  }));
 
 app.use(cookieParser());
-app.use(express.urlencoded({extended : false}))
 app.use(express.json());
 app.use('/',loginRouter)
 app.use('/products',productRouter)
-app.use('/wish',wishRoute)
+app.use('/order',order)
 app.use('/cart',cartRoute)
 
 

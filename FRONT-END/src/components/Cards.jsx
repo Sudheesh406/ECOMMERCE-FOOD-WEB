@@ -1,6 +1,6 @@
 // import { Link } from "react-router-dom";
 import {useState} from 'react';
-function Cards({product , addToCart }) {
+function Cards({product , addToCart ,OrderNow }) {
   const [selectedValue, setSelectedValue] = useState(1);
   const handleChange = (event) => {
     setSelectedValue(event.target.value);
@@ -34,13 +34,22 @@ function Cards({product , addToCart }) {
               </div>
               <span className="text-lg font-medium">₹{element.price}</span>
             </div>
-            
+            <div className='flex gap-3'>
+
             <button
               className="w-full bg-red-500 text-white py-2 rounded-lg font-medium hover:bg-green-500 transition-all"
               onClick={() => addToCart(element._id, selectedValue)}
             >
-               addToCart
+              Add to Cart
             </button>
+            {/* <button
+              className="w-full bg-red-500 text-white py-2 rounded-lg font-medium hover:bg-green-500 transition-all"
+              onClick={() => OrderNow(element._id, selectedValue)}
+            >
+              Order Now
+            </button> */}
+
+            </div>
           </div>
         </div>
       ))}

@@ -6,7 +6,7 @@ const {upload} = require('../middleware/uploadImageToS3')
 productRouter.get('/Products',uploadProducts)
 productRouter.post('/createProduct',upload.single('image'),createProduct)
 productRouter.post('/retrieveProduct',retrieveProduct)
-productRouter.put('/updateProduct',updateProduct)
+productRouter.put('/updateProduct/:id',upload.single('image'),updateProduct)
 productRouter.delete('/removeProduct',removeProduct)
 productRouter.get('/offers',uploadOffers)
 

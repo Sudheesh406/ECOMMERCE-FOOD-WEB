@@ -1,54 +1,53 @@
-async function upload() {
-    
-    try {
-      let result = await Product.find()
-        console.log("data updated successfully");
-        return result;
-        
-    } catch (error) {
-        console.error("error found in data uploading");
-        return null;
-        
-    }
-    
-}
+const orders = require ("../models/orderSchema")
+const UserAddress = require("../models/userAdressSchema");
+const Product = require('../models/productSchema')
 
 
-async function create(data) {
-    if(data){
+const createOrder = async (data,currentAddress,userId) => {
+    if (data && currentAddress && userId) {
+       console.log("data:",data.id);
+ 
+        let isExist = await UserAddress.findOne({_id:currentAddress})
+        console.log("isExist:",isExist);
+        
+            if(isExist){
         try {
-          let result = await Product.create(data)
-            console.log("data updated successfully");
-            return result;
+            const products = data.map((item) => ({
+                productId: item._id,
+                price: item.price
+            }));
 
-        } catch (error) {
-            console.error("error found in data uploading");
-            return null;
-            
-        }
-        
-    }else{
-        console.log("data is empty");
+            const response = await orders.create({
+                userId: userId,
+                products: products,
+                address:isExist._id
 
-    }
-}
+            });
 
-
-async function removeData(data) {
-    if(data){
-        try {
-            let result = await Product.findByIdAndDelete(data.id);
-            if(result){
-                return result
-            }else{
-                return null
+            if (response) {
+                console.log('Order created successfully:', response);
             }
         } catch (error) {
-            console.error("error found in remove data...");
-            
+            console.error("Error found in createOrder:", error);
         }
-    }else{
-        console.log("id not found...");
-        
+    }
+
+    } else {
+        console.log("Invalid data or userId");
+    }
+};
+
+const getOrder = async(data)=>{
+    try {
+        let result = await orders.find({ userId: data.id }).populate('products.productId', 'name price image');
+        if (result && result.length > 0) {
+            return result;
+        } else {
+            return null;
+        }
+    } catch (err) {
+        console.error("error found in find order", err);
     }
 }
+
+module.exports = {createOrder,getOrder}

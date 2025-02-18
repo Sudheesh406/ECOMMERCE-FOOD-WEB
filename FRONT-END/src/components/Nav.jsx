@@ -118,11 +118,11 @@ const Nav = () => {
           </div>
         </div>
         <div className="flex items-center space-x-3 mr-2">
-          <input
+          {/* <input
             type="text"
             placeholder="Find your cravings...🥪"
             className="p-2 pr-28 bg-green-800 text-white rounded-2xl border h-8"
-          />
+          /> */}
           <div className="pl-12 text-orange-500 font-bold text-sm">
             {user?.username || " "}
           </div>

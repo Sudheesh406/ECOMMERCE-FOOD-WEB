@@ -4,11 +4,18 @@ import useApiCall from "../hooks/useApiCall";
 import { Link } from "react-router-dom";
 import img from "../assets/rb_32612.png";
 import toast from 'react-hot-toast';
+import OrderForm from "./orderForm";
+import AddressForm from "./AddressForm";
 
 function Carts() {
   const [loading, setLoading] = useState(true);
   const [product, setProduct] = useState([]);
+  const [newAddress, setnewAddress] = useState(null);
+  // const [orderProduct, setOrderProduct] = useState(null)
 
+  const [form,setForm] = useState(false)
+  const [addressForm,setAddressForm] = useState(false)
+  
   let { value } = useApiCall("/cart/uploadToCart");
   let fullData = [];
   value.forEach((e) => {
@@ -114,6 +121,20 @@ function Carts() {
     );
   }
 
+   const newDataDetails =()=>{
+    setForm(true)
+   }
+   const newDataAddressDetails =()=>{
+    setAddressForm(true)
+   }
+
+   const toParent = (data)=>{
+    if(data){
+      setnewAddress(data)
+    }
+   }
+   
+
   return (
     <div className="h-screen bg-gradient-to-r from-gray-900 to-green-900 text-white">
       <div className="pt-10 px-6 h-20">
@@ -194,7 +215,7 @@ function Carts() {
               </div>
 
               <div className="flex justify-center mt-4">
-                <button className="w-1/4 py-2 bg-green-500 text-white rounded hover:bg-green-600 font-medium" >
+                <button className="w-1/4 py-2 bg-green-500 text-white rounded hover:bg-green-600 font-medium" onClick={()=>newDataDetails()}>
                   Place Order
                 </button>
               </div>
@@ -205,7 +226,6 @@ function Carts() {
             <img src={img} alt="empty cart" className="w-24 h-24 mb-4" />
             <h3 className="text-lg font-semibold">Your cart is empty!</h3>
             <p className="text-gray-400 text-sm mt-1">Add items to it now.</p>
-
             <Link to="/menu">
               <button className="mt-4 px-6 py-2 bg-orange-500 text-white rounded hover:bg-orange-600">
                 Shop Now
@@ -214,8 +234,16 @@ function Carts() {
           </div>
         )}
       </div>
+      {form &&(
+         <OrderForm open={form} handleClose={()=>setForm(prev=>!prev)} fullAmount={totalPrice} fromParent={product} newDataAddressDetails={newDataAddressDetails} 
+         Address={newAddress} />
+        )}
+         {form &&(
+         <AddressForm open={addressForm} handleClose={()=>setAddressForm(prev=>!prev)} toParent={toParent}/>
+        )}
     </div>
   );
 }
+
 
 export default Carts;

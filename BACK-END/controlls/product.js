@@ -69,8 +69,12 @@ async function retrieveProduct(req,res) {
 
 async function updateProduct(req,res) {
     let data = req.body
+    let id  = req.params.id
+    console.log("data:",data);  
+    data.image = req.file.location
+
     try {
-        let result = await update(data)
+        let result = await update(data ,id)
         if(result){
             res.status(200).json({message:"success",result})
         }else{

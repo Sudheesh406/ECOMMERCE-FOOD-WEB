@@ -7,10 +7,13 @@ import { useEffect, useState, useCallback, useContext} from 'react';
 import { userContext } from "./GlobalProvider";
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import OrderForm from "./orderForm";
+
 
 function Menu() {
   const [loading, setLoading] = useState(true)
   const [allProducts, setProducts] = useState([])
+  const [form,setForm] = useState(false)
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
@@ -57,12 +60,11 @@ function Menu() {
   let offerProduct = allProducts?.filter((element) => element.offer === true) || [];
   let normalProduct = allProducts?.filter((element) => element.offer !== true) || [];
 
-
   const CartAdding = async (id, qty) => {
     console.log(qty);
     try {
       const response = await axios.post('/cart/addToCart', { id , qty }); 
-      if (response.data != null) {
+      if (response.status === 200) {
         console.log("data:", response.data);
         toast.success('Cart Added Successfully!')
 
@@ -73,6 +75,12 @@ function Menu() {
       console.error("error found in addToCart", error);
     }
   };
+
+
+  const newDataDetails =(elementId,SelectedValue)=>{
+    console.log("elementId:",elementId,"SelectedValue:",SelectedValue);
+    setForm(true)
+   }
 
   if (loading) {
     return (
@@ -92,7 +100,7 @@ function Menu() {
           </h1>
         </div>
         <div className='pl-6'>
-        <Cards product={offerProduct} addToCart={CartAdding} />
+        <Cards product={offerProduct} addToCart={CartAdding} OrderNow={newDataDetails} />
         </div>
       </div>
 
@@ -104,9 +112,11 @@ function Menu() {
       </div>
       <div className='pl-1'>
 
-      <Cards product={normalProduct} addToCart={CartAdding} />
+      <Cards product={normalProduct} addToCart={CartAdding} OrderNow={newDataDetails}/>
       </div>
-      
+      {form &&(
+         <OrderForm open={form} handleClose={()=>setForm(prev=>!prev)}/>
+        )}
     </div>
   );
 }

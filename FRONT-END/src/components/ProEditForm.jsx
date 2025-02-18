@@ -1,10 +1,16 @@
-import { useState , useRef , useEffect} from "react";
+import { useState, useRef, useEffect } from "react";
 import PropType from "prop-types";
 import axios from "../axios";
 import { ImCancelCircle } from "react-icons/im";
-
+import toast from "react-hot-toast";
 // eslint-disable-next-line react/prop-types
-export function EditProductDialog({ open, handleClose ,editData, sendDataToParent}) {
+export function EditProductDialog({
+  open,
+  handleClose,
+  editData,
+  sendDataToParent,
+}) {
+  const [image, setImage] = useState(null);
   const [value, setValue] = useState({
     name: "",
     description: "",
@@ -13,47 +19,68 @@ export function EditProductDialog({ open, handleClose ,editData, sendDataToParen
     offer: "",
   });
 
-
-// ----------------------handleChange and validation in the product form---------------
+  // ----------------------handleChange and validation in the product form---------------
 
   function handleChange(e) {
-    const { name, value } = e.target;
-  
+    const { name, value, type, files } = e.target;
+    if (name === "image") imageRef.current.textContent = "";
     if (name === "name") nameRef.current.textContent = "";
     if (name === "offer") offerRef.current.textContent = "";
     if (name === "price") priceRef.current.textContent = "";
     if (name === "availability") availabilityRef.current.textContent = "";
-  
+
+    if (type === "file") {
+      const allowedTypes = ["image/png", "image/jpeg", "image/jpg","image/avif"];
+      if (files[0] && allowedTypes.includes(files[0].type)) {
+        setImage(files[0]);
+        console.log("image:");
+        
+      } else {
+        imageRef.current.textContent =
+          "Only PNG, JPG, and JPEG files are allowed.";
+        setImage(null);
+      }
+
+      return;
+    }
+
     setValue((prev) => ({
       ...prev,
-      [name]: name === "offer" || name === "availability" 
-        ? value === "true" 
-          ? true 
-          : value === "false" 
-          ? false 
-          : "" 
-        : value, 
+      [name]:
+        name === "offer" || name === "availability"
+          ? value === "true"
+            ? true
+            : value === "false"
+            ? false
+            : ""
+          : value,
     }));
   }
 
-  const nameRef = useRef(null)
-  const priceRef = useRef(null)
-  const availabilityRef = useRef(null)
-  const offerRef = useRef(null)
+  const imageRef = useRef(null);
+  const nameRef = useRef(null);
+  const priceRef = useRef(null);
+  const availabilityRef = useRef(null);
+  const offerRef = useRef(null);
 
-// ----------------------handleSubmit when product is in state----------------
+  // ----------------------handleSubmit when product is in state----------------
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     let valid = true;
-  
+    if (!image) {
+      imageRef.current.textContent = "Image is required";
+      valid = false;
+    } else {
+      imageRef.current.textContent = "";
+    }
     if (value.name.trim() === "") {
       nameRef.current.textContent = "name is required";
       valid = false;
     } else {
       nameRef.current.textContent = "";
     }
-  
+
     if (value.price.trim() === "") {
       priceRef.current.textContent = "price is required";
       valid = false;
@@ -67,44 +94,72 @@ export function EditProductDialog({ open, handleClose ,editData, sendDataToParen
     } else {
       offerRef.current.textContent = "";
     }
-  
+
     if (value.availability === "" || value.availability === undefined) {
       availabilityRef.current.textContent = "availability is required";
       valid = false;
     } else {
       availabilityRef.current.textContent = "";
     }
-  
+
     if (valid) {
-        let proper = Object.keys(value).every(key => value[key] === editData[key]);
-        if(!proper){
-          setValue({
-            name: "",
-            description: "",
-            price: "",
-            availability: "",
-            offer: "",
-          });
-             try {
-                const {data} = await axios.put("/products/updateProduct", value);
-                if (data) {
-                  console.log("putttt:",data.result);
-                handleClose();
-                sendDataToParent(data.result)
-                }
-              } catch (error) {
-                console.error("error found in submitting", error);
-              }
+      let proper = Object.keys(value).every(
+        (key) => value[key] === editData[key]
+      );
+       let imageChanged = image && editData.image && image === editData.image;
+       console.log("proper:",proper,"imageChanged:",imageChanged);
+       
+      if (!proper && imageChanged || proper && !imageChanged || !proper && !imageChanged) {
+        const formData = new FormData();
+        formData.append("name", value.name);
+        formData.append("description", value.description);
+        formData.append("price", value.price);
+        formData.append("availability", value.availability);
+        formData.append("offer", value.offer);
+        if (image) {
+          formData.append("image", image); 
+         console.log("image:",image);
+        }
+
+        setValue({
+          name: "",
+          description: "",
+          price: "",
+          availability: "",
+          offer: "",
+        });
+        try {
+          console.log("formData:", formData);
+          
+          const { data } = await axios.put("/products/updateProduct/"+ editData._id, formData,{
+            headers: {
+              "Content-Type": "multipart/form-data", 
+            },
+          }
+          );
+          if (data) {
+            console.log("putttt:", data.result);
+            toast.success("Added Successfully!");
+            handleClose();
+            sendDataToParent(data.result);
+          }
+        } catch (error) {
+          console.error("error found in submitting", error);
         }
       }
-     
     }
+  };
 
   // --------------------------retrived data to form--------------------------
 
   useEffect(() => {
     if (editData) {
       setValue(editData);
+      if (editData.image) {
+        setImage(editData.image);
+      } else {
+        setImage(null);
+      }
     }
   }, [editData]);
 
@@ -131,19 +186,33 @@ export function EditProductDialog({ open, handleClose ,editData, sendDataToParen
           </button>
         </div>
         <form className="space-y-4 mt-4 " onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="image" className="block text-gray-700 font-medium">
-              Upload Image
-            </label>
+          <div className="flex flex-col items-center">
+            {/* Image Preview */}
+            {image && (
+              <img
+                src={
+                  typeof image === "string" ? image : URL.createObjectURL(image)
+                }
+                alt="Preview"
+                className="mt-2 w-20 h-20 object-cover rounded"
+              />
+            )}
             <input
               id="image"
               name="image"
               type="file"
               accept="image/*"
               onChange={handleChange}
-              className="w-full p-3 border border-gray-400 bg-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="hidden" // Hide the default input UI
             />
-            <p></p>
+            {/* Custom Upload Button */}
+            <label
+              htmlFor="image"
+              className="mt-2 inline-block bg-blue-500 text-white py-2 px-4 rounded cursor-pointer hover:bg-blue-600"
+            >
+              Choose Image
+            </label>
+            <p ref={imageRef} className="text-red-500 p-0 m-0"></p>
           </div>
           <div>
             <label htmlFor="Name" className="block text-gray-700 font-medium">
@@ -158,8 +227,8 @@ export function EditProductDialog({ open, handleClose ,editData, sendDataToParen
               placeholder="Product name"
               className="w-full p-3 border border-gray-400 bg-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-             <p ref={nameRef} className="text-red-500 p-0 m-0"></p> 
-             </div>
+            <p ref={nameRef} className="text-red-500 p-0 m-0"></p>
+          </div>
           <div>
             <label
               htmlFor="CategoryOption"
@@ -170,13 +239,14 @@ export function EditProductDialog({ open, handleClose ,editData, sendDataToParen
             <select
               id="CategoryOption"
               name="offer"
-              value={ value.offer === true
-                ? "true"
-                : value.offer === false
-                ? "false"
-                : ""
-            } 
-            onChange={handleChange}
+              value={
+                value.offer === true
+                  ? "true"
+                  : value.offer === false
+                  ? "false"
+                  : ""
+              }
+              onChange={handleChange}
               className="w-full p-3 border border-gray-400 bg-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Select Category</option>
@@ -184,7 +254,7 @@ export function EditProductDialog({ open, handleClose ,editData, sendDataToParen
               <option value="false">Normal</option>
             </select>
 
-            <p ref={offerRef} className="text-red-500 p-0 m-0"></p> 
+            <p ref={offerRef} className="text-red-500 p-0 m-0"></p>
           </div>
           <div className="flex gap-4">
             <div className="w-full">
@@ -203,8 +273,7 @@ export function EditProductDialog({ open, handleClose ,editData, sendDataToParen
                 placeholder="$$$"
                 className="w-full p-3 border border-gray-400 bg-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              <p ref={priceRef} className="text-red-500 p-0 m-0"></p> 
-
+              <p ref={priceRef} className="text-red-500 p-0 m-0"></p>
             </div>
             <div className="w-full">
               <label
@@ -222,16 +291,15 @@ export function EditProductDialog({ open, handleClose ,editData, sendDataToParen
                     : value.availability === false
                     ? "false"
                     : ""
-                } 
-                onChange={ handleChange}
+                }
+                onChange={handleChange}
                 className="w-full p-3 border border-gray-400 bg-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                  <option value="">Stock?</option>
+                <option value="">Stock?</option>
                 <option value="true">In Stock</option>
                 <option value="false">Out of Stock</option>
               </select>
-             <p ref={availabilityRef} className="text-red-500 p-0 m-0"></p> 
-
+              <p ref={availabilityRef} className="text-red-500 p-0 m-0"></p>
             </div>
           </div>
           <div>
@@ -250,15 +318,14 @@ export function EditProductDialog({ open, handleClose ,editData, sendDataToParen
               placeholder="New arrived Product..."
               className="w-full p-3 border border-gray-400 bg-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-           <p></p>
-
+            <p></p>
           </div>
           <div className="mt-4 flex justify-end">
             <button
               type="submit"
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-            Edit Product
+              Edit Product
             </button>
           </div>
         </form>
