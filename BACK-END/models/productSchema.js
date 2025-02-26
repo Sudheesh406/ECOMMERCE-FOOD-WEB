@@ -22,6 +22,10 @@ const schema = mongoose.Schema({
     offer:{
         type:Boolean,
         default:false,
+    },
+    status:{
+        type:Boolean,
+        default:true,
     }
 })
 

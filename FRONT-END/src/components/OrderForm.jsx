@@ -3,6 +3,8 @@ import { ImCancelCircle } from "react-icons/im";
 import axios from "../axios";
 import toast from "react-hot-toast";
 import { userContext } from "./GlobalProvider";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 function OrderForm({
   open,
   handleClose,
@@ -10,7 +12,9 @@ function OrderForm({
   fromParent,
   newDataAddressDetails,
   Address,
+  setCartClear
 }) {
+  const navigate = useNavigate()
   const [userAddress, setUserAddress] = useState(null);
   const [currentAddress, setCurrentAddress] = useState(null);
   const [getAddress, setGetAddress] = useState([]);
@@ -22,7 +26,6 @@ function OrderForm({
 
   async function updateOrder() {
     let data = fromParent;
-    console.log("daataaa:",data);
     if (data && currentAddress) {
       newOrder();
       handleClose();
@@ -33,7 +36,18 @@ function OrderForm({
         });
         if (response) {
           console.log("orderPosted success");
-        }
+          const orderId = response.data.response._id;
+          const totalAmount = response.data.response.products.reduce((sum, item) => sum + item.price, 0);
+          if(orderId && totalAmount){
+           let obj = {orderId,totalAmount}
+            try {
+              let result = await axios.post('/order/payment',obj)
+            } catch (error) {
+              console.error("error found in payment posting",error);
+              
+            }
+          }
+      }  
       } catch (error) {
         console.error("error found in updateOrder", error);
       }
@@ -79,6 +93,8 @@ function OrderForm({
   }, [Address]);
 
   const checkoutPayment = async (order) => {
+    console.log("order:",order);
+    
     const options = {
       key: "rzp_test_ZKcJLyt29WoYex",
       amount: order.amount,
@@ -87,16 +103,34 @@ function OrderForm({
       description: "Thank you for shopping with us!",
       order_id: order.id,
       handler: async function (response) {
+        Swal.fire({
+          title: "Order Confirmed!",
+          text: "Your order has been successfully placed.",
+          icon: "success",
+          showCancelButton: false, 
+          confirmButtonColor: "#3085d6",
+          confirmButtonText: "OK",
+        }).then((response)=>{
+          navigate('/orders')
+         })
+         
         const paymentData = {
           razorpay_order_id: response.razorpay_order_id,
           razorpay_payment_id: response.razorpay_payment_id,
           razorpay_signature: response.razorpay_signature,
         };
-        const result = await axios.post("/payment/verify-payment", paymentData);
-        if (result.data.success) {
-          toast.success("Order Created");
-        } else {
-          toast.error("Error while creating order");
+  
+        try {
+          const result = await axios.post("/payment/verify-payment", paymentData);
+          if (result.data.success) {
+            console.log("Payment is successful");
+            toast.success("Order Created");
+          } else {
+            console.log("Payment verification failed"); 
+            toast.error("Error while creating order");
+          }
+        } catch (error) {
+          console.error("Payment verification error:", error);
         }
       },
       prefill: {
@@ -108,12 +142,16 @@ function OrderForm({
         color: "#AF6900",
       },
     };
+  
     const razorpay = new Razorpay(options);
     razorpay.open();
   };
+  
 
   const newOrder = async () => {
     try {
+
+      setCartClear(true)
       let response = await axios.post("/order/razorpay", {
         amount: fullAmount,
         currency: "INR",
@@ -121,6 +159,7 @@ function OrderForm({
       if (response) {
         await checkoutPayment(response.data.order);
         // change order status ton completed
+        
       }
     } catch (error) {
       console.error(error);

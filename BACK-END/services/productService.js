@@ -3,9 +3,9 @@ const Product = require('../models/productSchema')
 async function upload() {
     
         try {
-          let result = await Product.find()
+          let data = await Product.find()
+        let result = data.filter((element) => element.status == true)
             return result;
-            
         } catch (error) {
             console.error("error found in data uploading");
             return null;
@@ -33,8 +33,8 @@ async function create(data) {
  
     if(data){
         try {
+   
           let result = await Product.create(data)
-         
          
             if(result){
                 return result;
@@ -77,9 +77,7 @@ async function retrieveData(data) {
 
 async function update(data,id) {
     try {
-        if(data){
-            console.log("data:",data);
-            
+        if(data){      
             let result = await Product.findOneAndUpdate(
                 { _id: id }, 
                 { $set: data },  
@@ -120,4 +118,53 @@ async function removeData(data) {
     }
 }
 
-module.exports = {upload,create,retrieveData,update,removeData,Offers}
+const findTrashProducts = async ()=>{
+    try {
+        let result = await Product.find({status:false})
+        if(result){
+            return result
+        }
+    } catch (error) {
+        console.error('error found in findTrashProducts',error);
+        
+    }
+}
+
+const RestoreProducttrash = async (id) => {
+    try {
+        let result = await Product.findByIdAndUpdate(
+            id.id, 
+            { status: true }, 
+            { new: true } 
+        );
+        if (result) {
+            return result;
+        } else {
+            console.log('Product not found');
+            return null;
+        }
+    } catch (error) {
+        console.error('Error found in RestoreProducttrash:', error);
+    }
+};
+
+const updatetrashload = async(id)=>{
+    try {
+        let result = await Product.findByIdAndUpdate(
+            id.id, 
+            { status: false }, 
+            { new: true } 
+        );
+        if (result) {
+            return result;
+        } else {
+            console.log('Product not found');
+            return null;
+        }
+    } catch (error) {
+        console.error('Error found in RestoreProducttrash:', error);
+    }
+}
+
+
+module.exports = {upload,create,retrieveData,update,removeData,Offers,findTrashProducts,RestoreProducttrash, updatetrashload}

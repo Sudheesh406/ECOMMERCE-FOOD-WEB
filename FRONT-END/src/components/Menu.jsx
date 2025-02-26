@@ -59,20 +59,19 @@ function Menu() {
 
   let offerProduct = allProducts?.filter((element) => element.offer === true) || [];
   let normalProduct = allProducts?.filter((element) => element.offer !== true) || [];
-
+  
   const CartAdding = async (id, qty) => {
-    console.log(qty);
     try {
-      const response = await axios.post('/cart/addToCart', { id , qty }); 
-      if (response.status === 200) {
-        console.log("data:", response.data);
+      let {data} = await axios.post("/cart/addToCart", { id, qty });
+      if (data != null) {
         toast.success('Cart Added Successfully!')
-
-      }else if(response.data == null){
-        navigate('/login')
+        console.log("data:", data);
+      } else if(data == null) {
+        navigate('/Login')
       }
     } catch (error) {
       console.error("error found in addToCart", error);
+
     }
   };
 

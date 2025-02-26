@@ -8,13 +8,12 @@ import { IoHome } from "react-icons/io5";
 import { IoLogIn } from "react-icons/io5";
 import { BsPersonWorkspace } from "react-icons/bs";
 import { userContext } from "./GlobalProvider";
-import { useContext, useEffect, useState } from "react";
+import { useContext} from "react";
 import axios from "../axios";
 // import { AiFillExclamationCircle } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 
 const Nav = () => {
-  const [admin, setAdmin] = useState(false);
   const { user, setUser } = useContext(userContext);
   const navigate = useNavigate();
   const location = useLocation();
@@ -31,20 +30,12 @@ const Nav = () => {
       console.error("Error occurred during logout:", error);
     }
   }
-
-  useEffect(() => {
-    if (user?.role === true) {
-      setAdmin(true);
-    } else {
-      setAdmin(false);
-    }
-  }, [user?.role]);
-
-  const linkDestination = admin ? "/AdminPanel" : "/Profile";
-  const linkText = admin ? "AdminPanel" : "Profile";
+  const linkDestination = "/Profile";
+  const linkText =  "Profile";
 
   return (
     <>
+
       <div className="flex pl-14 justify-between items-center h-20">
         <div className="flex justify-between items-center w-3/6">
           <div>
@@ -145,6 +136,8 @@ const Nav = () => {
                           Orders
                         </h1>
                       </Link>
+
+                      
                       <button
                         className="flex gap-3 pt-2 font-semibold text-sm hover:text-red-500"
                         onClick={logOut}

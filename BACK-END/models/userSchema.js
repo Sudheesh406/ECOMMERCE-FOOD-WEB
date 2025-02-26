@@ -13,6 +13,10 @@ const Schema = mongoose.Schema({
         type: String,
         required: true,
     },
+    access: {
+        type: Boolean,
+        default: true,
+    },
     role: {
         type: Boolean,
         default: false,

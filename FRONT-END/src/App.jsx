@@ -6,14 +6,19 @@ import About from "./components/About";
 import Orders from "./components/Orders";
 import Login from "./components/Login";
 import AdminPanel from "./components/AdminPanel";
+import OurMostPopularDeals from "./components/OurMostPopularDeals";
+import UserList from "./components/UserList";
+import OrdersList from "./components/OrdersList";
+import AdminTrash from "./components/AdminTrash";
 import Carts from "./components/Carts";
+import Signup from "./components/Signup";
 import { Routes, Route } from "react-router-dom";
 import PageNotFound from "./components/PageNotFound";
 import "./App.css";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Nav from "./components/Nav";
 import { Toaster } from "react-hot-toast";
-
+import OrderDetails from "./components/OrderDetails";
 function App() {
   return (
     <div className="bg-gradient-to-r from-gray-900 to-green-900">
@@ -29,14 +34,20 @@ function App() {
             <Route path="/Profile" element={<Profile />} />
             <Route path="/WishList" element={<WishList />} />
             <Route path="/Orders" element={<Orders />} />
-            <Route path="/AdminPanel" element={<AdminPanel />} />
             <Route path="/Carts" element={<Carts />} />
+            <Route path="/orderDetails/:orderId" element={<OrderDetails />} />
 
           </Route>
 
             <Route path="/Login" element={<Login />} />
-            
+            <Route path="/Signup" element={<Signup/>}/>
           </Route>
+            <Route path="/AdminPanel" element={<AdminPanel />} />
+            <Route path="/OurMostPopularDeals" element={<OurMostPopularDeals />} />
+            <Route path="/UserList" element={<UserList />} />
+            <Route path="/OrdersList" element={<OrdersList />} />
+
+            <Route path="/AdminTrash" element={<AdminTrash />} />
 
           <Route path="*" element={<PageNotFound/>} />
     </Routes>

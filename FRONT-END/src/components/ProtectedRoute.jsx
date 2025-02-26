@@ -16,6 +16,9 @@ const ProtectedRoute = () => {
       });
 
       if (data && data.data) {
+        if(data.data.role){
+          navigate('/AdminPanel')
+        }
         const { _id } = data.data;
         setUser((prevUser) => {
           if (!prevUser || prevUser._id !== _id) {

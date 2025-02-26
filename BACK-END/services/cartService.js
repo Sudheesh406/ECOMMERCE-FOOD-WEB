@@ -28,8 +28,7 @@ async function create(dataId, id ,qty) {
     let userId = id;
     let productId = dataId;
     try {
-      console.log("qty:",qty);
-      
+   
       let response = await Cart.findOne({ userId, productId });
       if (response) {
         if(!qty) qty = 1
@@ -91,4 +90,43 @@ async function removeQty(id, proId) {
   }
 }
 
-module.exports = { upload, create, removeData ,removeQty};
+
+const AllCartProducts = async () => {
+  try {
+    const cartData = await Cart.find().populate("productId");
+    if(!cartData){
+      console.log("can't find the products from cart");
+    }
+      const allProducts = cartData.map(cartItem => cartItem.productId);
+    
+    if(allProducts){
+      return allProducts
+    }else{
+      console.log("can't find the products from cart");
+    }
+  } catch (error) {
+    console.error("can't find the products from cart",error);
+    
+  }
+};
+
+async function cartClearService(id){
+  
+  if(id){
+    try {
+      let response = await Cart.deleteMany({ userId: id });
+      if(response){
+        return response
+      }else{
+        return null
+      }
+    } catch (error) {
+      console.error("error found in cartClearService",error);
+      
+    }
+  }
+}
+
+
+
+module.exports = { upload, create, removeData ,removeQty, AllCartProducts,cartClearService};

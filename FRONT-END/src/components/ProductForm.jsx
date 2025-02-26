@@ -12,6 +12,7 @@ export function AddProductDialog({ open, handleClose ,sendDataToParent}) {
     price: "",
     availability: "",
     offer: "",
+    status:"",
   });
 
 
@@ -111,6 +112,7 @@ export function AddProductDialog({ open, handleClose ,sendDataToParent}) {
       formData.append("price", value.price);
       formData.append("availability", value.availability);
       formData.append("offer", value.offer);
+      formData.append("status", true);
       if (image) {
         formData.append("image", image); 
       }

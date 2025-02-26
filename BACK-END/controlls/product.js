@@ -1,4 +1,4 @@
-const {upload,create,retrieveData,update,removeData,Offers} = require('../services/productService')
+const {upload,create,retrieveData,update,removeData,Offers,findTrashProducts,RestoreProducttrash, updatetrashload} = require('../services/productService')
 
 async function uploadProducts(req,res) {
     try {
@@ -31,12 +31,9 @@ async function uploadOffers(req,res) {
 
 async function createProduct(req,res) {
     let data = req.body
-    console.log("image",req.file);
-    console.log("data:",data);
     data.image = req.file.location
     try {
         let result = await create(data)
-      console.log("result:",result);
       
         if(result){
         
@@ -70,8 +67,8 @@ async function retrieveProduct(req,res) {
 async function updateProduct(req,res) {
     let data = req.body
     let id  = req.params.id
-    console.log("data:",data);  
-    data.image = req.file.location
+
+    data.image = req.file?.location
 
     try {
         let result = await update(data ,id)
@@ -103,4 +100,50 @@ async function removeProduct(req,res) {
     }
 }
 
-module.exports = {uploadProducts,createProduct,retrieveProduct,updateProduct,removeProduct,uploadOffers}
+async function trashData(req,res) {
+    
+        try {
+            let result = await findTrashProducts()
+            if(result){
+                res.status(200).json({message :"success",result})
+            }
+        } catch (error) {
+            console.error("error found in trashData",error);
+            res.status(400).json({message :"errror found in trashData"})
+
+    }
+}
+
+const dataRestore = async (req,res)=>{
+    if(req.body){
+        try {
+            let result = await RestoreProducttrash(req.body)
+            if (result) {
+                res.status(200).json({message:"sucess",result})
+            }
+        } catch (error) {
+            console.error("error found in dataRestore",error);
+
+        }
+    }
+}
+
+
+const trashload = async(req,res)=>{
+    if(req.body){
+        try {
+            let result = await updatetrashload(req.body)
+            if(result){
+                res.status(200).json({message:"sucess",result})
+            }else{
+                res.status(400).json({message:"erorr in trashload"})
+            }
+        } catch (error) {
+            console.error("error found in trashload",error);
+            res.status(400).json({message:"erorr in trashload",error})
+        }
+    }
+}
+
+
+module.exports = {uploadProducts,createProduct,retrieveProduct,updateProduct,removeProduct,uploadOffers,trashData,dataRestore,trashload}

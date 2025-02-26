@@ -1,72 +1,109 @@
+import { useState,useContext } from "react";
+import { ImCancelCircle } from "react-icons/im";
+import { userContext } from "./GlobalProvider";
+import axios from '../axios'
+import { useEffect } from "react";
 
-function UserForm() {
+function UserForm({ open, handleClose, changePassword}) {
+      const { user, setUser } = useContext(userContext);
+    
+  const [value, setValue] = useState({
+    username: "",
+  });
+
+  const handleChange = (e) => {
+    setValue({ ...value, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const isChanged = JSON.stringify(value) !== JSON.stringify(user.username);
+    if (!isChanged) {
+      console.log("No changes detected.");
+      return;
+    }else{
+        edituserDetails(value)
+    }
+    handleClose();
+  };
+
+  const handlePasswordChange = (e)=>{
+    console.log("hello");
+    changePassword(true)
+    handleClose();
+  }
+
+  const edituserDetails = async(data)=>{
+    try {
+        let result = await axios.put(`/edituserDetails/${user._id}`,{data})
+        if(result){
+            console.log("result:",result.data.result.username);
+            setUser((prev) => ({ ...prev, username: result.data.result.username }));
+        }
+    } catch (error) {
+        console.error("error found in edituserDetails",error);
+        
+    }
+  }
+
+  useEffect(() => {
+    if (user) {
+      setValue({ username: user.username });
+    }
+  }, [user]);
+
   return (
-    <div><form className="space-y-4">
-    <div className="flex flex-col">
-      <label htmlFor="profileImage" className="text-sm font-medium text-gray-700">Profile Image</label>
-      <input type="file" id="profileImage" className="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"/>
-    </div>
-    
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div className="flex flex-col">
-        <label htmlFor="inputName" className="text-sm font-medium text-gray-700">Name</label>
-        <input type="text" id="inputName" placeholder="Name" className="mt-1 block w-full text-sm border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"/>
-      </div>
-      <div className="flex flex-col">
-        <label htmlFor="inputEmail" className="text-sm font-medium text-gray-700">Email</label>
-        <input type="email" id="inputEmail" placeholder="Email" className="mt-1 block w-full text-sm border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"/>
-      </div>
-    </div>
-    
-    <div className="flex flex-col">
-      <label htmlFor="inputAddress" className="text-sm font-medium text-gray-700">Address</label>
-      <input type="text" id="inputAddress" placeholder="1234 Main St" className="mt-1 block w-full text-sm border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"/>
-    </div>
-    
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div className="flex flex-col">
-        <label htmlFor="inputPhone1" className="text-sm font-medium text-gray-700">Phone Number 1</label>
-        <input type="tel" id="inputPhone1" placeholder="Phone Number 1" className="mt-1 block w-full text-sm border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"/>
-      </div>
-      <div className="flex flex-col">
-        <label htmlFor="inputPhone2" className="text-sm font-medium text-gray-700">Phone Number 2</label>
-        <input type="tel" id="inputPhone2" placeholder="Phone Number 2" className="mt-1 block w-full text-sm border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"/>
-      </div>
-    </div>
-    
-    <div className="flex flex-col">
-      <label htmlFor="inputGender" className="text-sm font-medium text-gray-700">Gender</label>
-      <select id="inputGender" className="mt-1 block w-full text-sm border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
-        <option selected>Choose...</option>
-        <option>Male</option>
-        <option>Female</option>
-        <option>Other</option>
-      </select>
-    </div>
-    
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div className="flex flex-col">
-        <label htmlFor="inputPin" className="text-sm font-medium text-gray-700">Pin Number</label>
-        <input type="text" id="inputPin" placeholder="Pin Number" className="mt-1 block w-full text-sm border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"/>
-      </div>
-      <div className="flex flex-col">
-        <label htmlFor="inputCity" className="text-sm font-medium text-gray-700">City</label>
-        <input type="text" id="inputCity" className="mt-1 block w-full text-sm border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"/>
+    <div
+      className={`fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 ${
+        open ? "block" : "hidden"
+      }`}
+      role="dialog"
+      aria-hidden={!open}
+    >
+      <div className="bg-white p-6 rounded-lg w-1/3">
+        <div className="relative">
+          <h4 className="text-2xl text-gray-400">Manage Item</h4>
+          <p className="mt-1 text-gray-400">
+            Keep your records up-to-date and organized.
+          </p>
+          <button
+            className="absolute top-2 right-2 text-black hover:text-gray-800 text-xl"
+            onClick={handleClose}
+            aria-label="Close"
+          >
+            <ImCancelCircle />
+          </button>
+        </div>
+        <div>
+            <label htmlFor="username" className="block text-gray-400 font-medium">
+              New Username
+            </label>
+            <input
+              id="username"
+              name="username"
+              value={value.username}
+              onChange={handleChange}
+              type="text"
+              placeholder="Username"
+              className="w-full p-3 border border-gray-400 bg-white text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="w-full flex gap-3 justify-end pt-3">
+            <button
+              
+              className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onClick={handleSubmit}>
+              Change
+            </button>
+            <button
+              className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onClick={handlePasswordChange}>
+              Change pasword
+            </button>
+          </div>
       </div>
     </div>
-    
-    <div className="flex flex-col">
-      <label htmlFor="inputState" className="text-sm font-medium text-gray-700">State</label>
-      <select id="inputState" className="mt-1 block w-full text-sm border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
-        <option selected>Choose...</option>
-        <option>...</option>
-      </select>
-    </div>
-    
-    <button type="submit" className="w-full bg-indigo-600 text-white text-sm font-medium py-2 px-4 rounded-lg hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Submit</button>
-  </form>
-  </div>
-  )
+  );
 }
 
-export default UserForm
+export default UserForm;

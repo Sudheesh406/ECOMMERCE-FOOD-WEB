@@ -6,6 +6,7 @@ const loginRouter = require('./routers/loginRoute')
 const productRouter = require('./routers/productRoute')
 const order = require('./routers/orderRoute')
 const cartRoute = require('./routers/cartRoute')
+const profileRoute = require('./routers/profileRoute')
 const databaseCn = require('./database/db');
 const cors = require('cors')
 
@@ -20,6 +21,7 @@ app.use('/',loginRouter)
 app.use('/products',productRouter)
 app.use('/order',order)
 app.use('/cart',cartRoute)
+app.use('/profile',profileRoute)
 
 
 databaseCn();

@@ -1,6 +1,6 @@
 // import { Link } from "react-router-dom";
 import {useState} from 'react';
-function Cards({product , addToCart ,OrderNow }) {
+function Cards({product , addToCart  }) {
   const [selectedValue, setSelectedValue] = useState(1);
   const handleChange = (event) => {
     setSelectedValue(event.target.value);
@@ -11,7 +11,7 @@ function Cards({product , addToCart ,OrderNow }) {
       product.map((element,index) => (
         <div
         key={element.id ||`product-${index}`}
-          className="card relative w-80 bg-gray-800 p-4 rounded-2xl shadow-lg transform transition-transform duration-300 hover:scale-105 hover:shadow-xl"
+          className="card relative w-80  p-4 rounded-2xl transform transition-transform duration-300 hover:scale-105 "
         >
           <img
             src={element.image}

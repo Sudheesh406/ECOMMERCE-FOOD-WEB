@@ -116,6 +116,7 @@ export function EditProductDialog({
         formData.append("price", value.price);
         formData.append("availability", value.availability);
         formData.append("offer", value.offer);
+        formData.append("status", true);
         if (image) {
           formData.append("image", image); 
          console.log("image:",image);
